@@ -1,0 +1,124 @@
+*vibe.txt*  AI coding assistant for Vim and Neovim
+
+                                                                    *vibe*
+
+CONTENTS                                                       *vibe-contents*
+
+    1. Introduction .............. |vibe-intro|
+    2. Requirements .............. |vibe-requirements|
+    3. Commands .................. |vibe-commands|
+    4. Mappings .................. |vibe-mappings|
+    5. Configuration ............. |vibe-config|
+    6. Providers ................. |vibe-providers|
+    7. Protocol .................. |vibe-protocol|
+
+==============================================================================
+1. Introduction                                                   *vibe-intro*
+
+Vibe is an AI coding assistant. It spawns a helper binary (`vibe`) that
+handles HTTP requests, streaming, and session state. The plugin handles all
+UI. Communication is NDJSON over stdin/stdout.
+
+==============================================================================
+2. Requirements                                            *vibe-requirements*
+
+- Vim 8.2+ or Neovim
+- `vibe` binary on PATH (or |g:vibe_binary|)
+- A configured provider (default: Ollama at localhost:11434)
+
+==============================================================================
+3. Commands                                                    *vibe-commands*
+
+                                                                      *:Vibe*
+:Vibe [prompt]
+    Open the chat split. If [prompt] is given, send it immediately with the
+    current buffer as context.
+
+                                                                  *:VibeChat*
+:VibeChat
+    Toggle the chat split open/closed. The session is preserved when hidden.
+
+                                                                  *:VibeEdit*
+:[range]VibeEdit [prompt]
+    Send the selected lines as an inline edit request. Opens the chat split
+    to show the response. An edit_proposal from the binary will be shown in
+    the chat buffer (full diff UI coming in v0.2).
+
+                                                                *:VibeInline*
+:VibeInline [prompt]
+    Like |:VibeEdit| but operates on the current line only.
+
+                                                                *:VibeCancel*
+:VibeCancel
+    Cancel the current in-flight stream.
+
+                                                              *:VibeProvider*
+:VibeProvider {name}
+    Switch to a different provider for this session. {name} must exist in
+    config.toml.
+
+                                                               *:VibeAddFile*
+:VibeAddFile {path}
+    Pin {path} into the context for every subsequent request in this session.
+
+                                                                *:VibeStatus*
+:VibeStatus
+    Print current provider, model, session id, streaming state, and number
+    of pinned files.
+
+==============================================================================
+4. Mappings                                                    *vibe-mappings*
+
+These mappings are local to the chat buffer (filetype=vibe):
+
+<CR>        Send the current line as a prompt (line must start with `> `).
+q           Hide the chat buffer (session preserved).
+<C-c>       Cancel the current stream.
+
+==============================================================================
+5. Configuration                                                 *vibe-config*
+
+                                                               *g:vibe_binary*
+g:vibe_binary (default: 'vibe')
+    Path or name of the vibe helper binary.
+
+                                                             *g:vibe_provider*
+g:vibe_provider (default: '')
+    Override the default_provider from config.toml. Set in your vimrc to
+    always start with a specific provider.
+
+                                                                *g:vibe_model*
+g:vibe_model (default: '')
+    Override the model for the active provider.
+
+                                                                *g:vibe_split*
+g:vibe_split (default: 'vertical')
+    How to open the chat split. One of: 'vertical', 'horizontal', 'tab'.
+
+                                                         *g:vibe_auto_approve*
+g:vibe_auto_approve (default: [])
+    List of tool names to auto-approve without prompting (Step 8).
+
+==============================================================================
+6. Providers                                                   *vibe-providers*
+
+Providers are configured in ~/.config/vibe/config.toml. See README.md for
+examples. Supported in v0.1: Ollama. Anthropic, OpenAI, Cerebras, and ACP
+providers (claude-code, codex) are coming in v0.2.
+
+Provider inheritance: >
+
+    [providers.myrouter]
+    inherits    = "openai"
+    endpoint    = "https://my.router/v1"
+    api_key_env = "MY_KEY"
+<
+
+==============================================================================
+7. Protocol                                                    *vibe-protocol*
+
+The plugin and binary communicate via newline-delimited JSON (NDJSON) over
+stdin/stdout. One JSON object per line. See the spec in the repository for
+the full message reference.
+
+ vim:tw=78:ts=4:ft=help:norl:
