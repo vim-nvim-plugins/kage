@@ -2,3 +2,5 @@ vibe
 vibe.exe
 dist/
 *.test
+.swp
+.DS_Store
