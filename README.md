@@ -1,43 +1,27 @@
-# vibe
-
+# vibe.vim
+## Overview
 AI coding assistant for Vim and Neovim. Chat with your model about code and
 perform inline edits — works in classic Vim 8.2 and Neovim, with local or
 hosted models.
 
-**Status:** v0.1 — chat works end-to-end with Ollama, Anthropic, OpenAI, and
-any OpenAI-compatible endpoint. ACP subprocess providers are supported. Inline
+<p align="center">
+	<img src="./assets/vibe.gif" alt="Using Ollama"/>
+</p>
+
+- **Chat** Chat works end-to-end with Ollama, Anthropic, OpenAI, and any OpenAI-compatible endpoint.
+- **ACP** ACP subprocess providers are supported. Inline
 diff accept/reject UI is in progress.
-
----
-
-## Why another plugin?
-
-[magenta.nvim](https://github.com/dlants/magenta.nvim) is excellent for
-Neovim users who want deep agentic features and are happy with Anthropic's
-API. Vibe exists for a different set of constraints:
-
-- Runs in **Vim 8.2 and Neovim** — not Neovim-only
+- **Vim 8.2 and Neovim** — not Neovim-only
 - **No npm.** One Go binary, one Vimscript file, nothing else to install
 - **Local models first** — Ollama works out of the box, no config required
-- **ACP mode** — front-ends any AI CLI tool (Claude Code, Codex CLI, custom
-  scripts) as a backend directly, so you get the full agent loop without
-  leaving Vim
-- **Provider choice** — Anthropic, OpenAI, Cerebras, Groq, or bring your own
-  via the `inherits` config key
-
-If you're on Neovim and want the most capable agentic experience and are
-okay with a Node runtime, use magenta. If you want something that works
-everywhere, runs local models, or fronts an ACP agent — that's vibe.
-
----
+- **ACP mode** — front-ends any AI CLI tool (Claude Code, Codex CLI, custom scripts) as a backend directly, so you get the full agent loop without leaving Vim
+- **Provider choice** — Anthropic, OpenAI, Cerebras, Groq, or bring your own via the `inherits` config key
 
 ## Requirements
 
 - Vim 8.2+ or Neovim
 - Go 1.22+ (to build the binary)
 - A running provider — Ollama by default, no config needed
-
----
 
 ## Install
 
@@ -66,8 +50,6 @@ Or manually — copy `plugin/vibe.vim` into `~/.vim/plugin/` (Vim) or
 Without a config file, vibe defaults to Ollama at `localhost:11434`. To use
 other providers, create `~/.config/vibe/config.toml`. See
 [Provider setup](#provider-setup) below.
-
----
 
 ## Usage
 
@@ -104,25 +86,6 @@ The panel is two panes: a scrollable history (top) and an input buffer (bottom).
 | `<Tab>` | Move focus to input |
 | `<C-c>` | Cancel the current stream |
 | `q` | Close the panel |
-
----
-
-## What works now
-
-- `:VibeChat` opens a two-pane split; type in the bottom pane and send with `<CR>`
-- Current buffer is automatically sent as context with every message
-- `:'<,'>VibeEdit` and `:VibeAddFile` send selections and pinned files
-- Streaming responses render chunk-by-chunk with thinking block support
-- Session history is kept — the model sees the full conversation
-- `:VibeProvider` switches providers mid-session
-- **Ollama**, **Anthropic**, **OpenAI**, and **ACP subprocess** providers all work
-
-## What's coming
-
-- **Inline diff UI** — accept/reject edit proposals in a proper diff view
-- **Tool approval UX** — approve/reject/always-allow tool calls from agentic backends
-
----
 
 ## Smoke test
 
@@ -225,10 +188,45 @@ Output (one JSON object per line on stdout):
 
 The subprocess inherits the parent environment; `env` keys override or add to it.
 
----
+## Change Log
 
-## Project layout
+### v0.2.0 (Latest)<br>
+Provider update
 
+Features
+- `:VibeChat` opens a two-pane split; type in the bottom pane and send with `<CR>`
+- Current buffer is automatically sent as context with every message
+- `:'<,'>VibeEdit` and `:VibeAddFile` send selections and pinned files
+- Streaming responses render chunk-by-chunk with thinking block support
+- Session history is kept — the model sees the full conversation
+- `:VibeProvider` switches providers mid-session
+- **Ollama**, **Anthropic**, **OpenAI**, and **ACP subprocess** providers all work
+
+### Previous Versions
+<details>
+<summary>Previous Changes</summary>
+
+***v0.1.0***<br>
+- Initial commit
+- Ollama local chat
+</details>
+
+## Roadmap
+- [ ] **Inline diff UI** — accept/reject edit proposals in a proper diff view
+- [ ] **Tool approval UX** — approve/reject/always-allow tool calls from agentic backends
+
+
+## Contributing
+If you share the belief that simplicity empowers creativity, feel free to contribute.
+
+#### Contribution is welcome in the form of:
+- Forking this repo
+- Submitting a Pull Request
+- Bug reports and feature requests
+
+Please ensure your code follows the existing style.
+
+#### Project layout
 ```
 cmd/vibe/           binary entry point + protocol loop
 internal/protocol/  NDJSON message types (binary ↔ plugin)
@@ -239,8 +237,6 @@ plugin/vibe.vim     the entire Vim plugin (one file)
 doc/vibe.txt        :help vibe
 ```
 
----
-
-## License
-
-MIT
+## Thank you for your attention.
+This project started out of curiosity and a simple C text editor tutorial. If you hit any issues, feel free to open an issue on GitHub.
+Pull requests, suggestions, or even thoughtful discussions are welcome.
