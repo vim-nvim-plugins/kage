@@ -1,0 +1,124 @@
+*kage.txt*  AI coding assistant for Vim and Neovim
+
+                                                                    *kage*
+
+CONTENTS                                                       *kage-contents*
+
+    1. Introduction .............. |kage-intro|
+    2. Requirements .............. |kage-requirements|
+    3. Commands .................. |kage-commands|
+    4. Mappings .................. |kage-mappings|
+    5. Configuration ............. |kage-config|
+    6. Providers ................. |kage-providers|
+    7. Protocol .................. |kage-protocol|
+
+==============================================================================
+1. Introduction                                                   *kage-intro*
+
+Kage is an AI coding assistant. It spawns a helper binary (`kage`) that
+handles HTTP requests, streaming, and session state. The plugin handles all
+UI. Communication is NDJSON over stdin/stdout.
+
+==============================================================================
+2. Requirements                                            *kage-requirements*
+
+- Vim 8.2+ or Neovim
+- `kage` binary on PATH (or |g:kage_binary|)
+- A configured provider (default: Ollama at localhost:11434)
+
+==============================================================================
+3. Commands                                                    *kage-commands*
+
+                                                                      *:Kage*
+:Kage [prompt]
+    Open the chat split. If [prompt] is given, send it immediately with the
+    current buffer as context.
+
+                                                                  *:KageChat*
+:KageChat
+    Toggle the chat split open/closed. The session is preserved when hidden.
+
+                                                                  *:KageEdit*
+:[range]KageEdit [prompt]
+    Send the selected lines as an inline edit request. Opens the chat split
+    to show the response. An edit_proposal from the binary will be shown in
+    the chat buffer (full diff UI coming in v0.2).
+
+                                                                *:KageInline*
+:KageInline [prompt]
+    Like |:KageEdit| but operates on the current line only.
+
+                                                                *:KageCancel*
+:KageCancel
+    Cancel the current in-flight stream.
+
+                                                              *:KageProvider*
+:KageProvider {name}
+    Switch to a different provider for this session. {name} must exist in
+    config.toml.
+
+                                                               *:KageAddFile*
+:KageAddFile {path}
+    Pin {path} into the context for every subsequent request in this session.
+
+                                                                *:KageStatus*
+:KageStatus
+    Print current provider, model, session id, streaming state, and number
+    of pinned files.
+
+==============================================================================
+4. Mappings                                                    *kage-mappings*
+
+These mappings are local to the chat buffer (filetype=kage):
+
+<CR>        Send the current line as a prompt (line must start with `> `).
+q           Hide the chat buffer (session preserved).
+<C-c>       Cancel the current stream.
+
+==============================================================================
+5. Configuration                                                 *kage-config*
+
+                                                               *g:kage_binary*
+g:kage_binary (default: 'kage')
+    Path or name of the kage helper binary.
+
+                                                             *g:kage_provider*
+g:kage_provider (default: '')
+    Override the default_provider from config.toml. Set in your vimrc to
+    always start with a specific provider.
+
+                                                                *g:kage_model*
+g:kage_model (default: '')
+    Override the model for the active provider.
+
+                                                                *g:kage_split*
+g:kage_split (default: 'vertical')
+    How to open the chat split. One of: 'vertical', 'horizontal', 'tab'.
+
+                                                         *g:kage_auto_approve*
+g:kage_auto_approve (default: [])
+    List of tool names to auto-approve without prompting (Step 8).
+
+==============================================================================
+6. Providers                                                   *kage-providers*
+
+Providers are configured in ~/.config/kage/config.toml. See README.md for
+examples. Supported in v0.1: Ollama. Anthropic, OpenAI, Cerebras, and ACP
+providers (claude-code, codex) are coming in v0.2.
+
+Provider inheritance: >
+
+    [providers.myrouter]
+    inherits    = "openai"
+    endpoint    = "https://my.router/v1"
+    api_key_env = "MY_KEY"
+<
+
+==============================================================================
+7. Protocol                                                    *kage-protocol*
+
+The plugin and binary communicate via newline-delimited JSON (NDJSON) over
+stdin/stdout. One JSON object per line. See the spec in the repository for
+the full message reference.
+
+ vim:tw=78:ts=4:ft=help:norl:

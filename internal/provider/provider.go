@@ -12,17 +12,17 @@ type Provider interface {
 
 type Request struct {
 	Messages []Message
-	Tools    []Tool  // nil if SupportsTools() is false or not needed
+	Tools    []Tool // nil if SupportsTools() is false or not needed
 	System   string
 }
 
 type Message struct {
-	Role    string         // "user" | "assistant" | "tool"
+	Role    string // "user" | "assistant" | "tool"
 	Content []ContentBlock
 }
 
 type ContentBlock struct {
-	Type    string      // "text" | "tool_use" | "tool_result" | "thinking"
+	Type    string // "text" | "tool_use" | "tool_result" | "thinking"
 	Text    string
 	ToolUse *ToolUse
 	Result  *ToolResult
@@ -47,7 +47,7 @@ type Tool struct {
 }
 
 type Event struct {
-	Type     string   // "text" | "thinking" | "tool_call" | "end" | "error"
+	Type     string // "text" | "thinking" | "tool_call" | "end" | "error"
 	Text     string
 	ToolCall *ToolUse
 	Usage    *Usage

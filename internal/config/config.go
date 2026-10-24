@@ -9,8 +9,8 @@ import (
 )
 
 type ProviderConfig struct {
-	Type      string            // "acp" for ACP providers, empty means HTTP
-	Inherits  string            // shallow-merge from another provider key
+	Type      string // "acp" for ACP providers, empty means HTTP
+	Inherits  string // shallow-merge from another provider key
 	Endpoint  string
 	Model     string
 	APIKeyEnv string
@@ -76,10 +76,10 @@ func defaultPath() string {
 	if err != nil {
 		dir = filepath.Join(os.Getenv("HOME"), ".config")
 	}
-	return filepath.Join(dir, "vibe", "config.toml")
+	return filepath.Join(dir, "kage", "config.toml")
 }
 
-// parseFile is a minimal TOML parser for the subset vibe needs:
+// parseFile is a minimal TOML parser for the subset kage needs:
 //   - Top-level key = "value" pairs
 //   - Section headers [section] and [section.subsection]
 //   - String values (quoted or unquoted)

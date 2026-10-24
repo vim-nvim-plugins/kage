@@ -1,16 +1,16 @@
-" vibe.vim — AI coding assistant for Vim/Neovim
-" Requires: Vim 8.2+ or Neovim, vibe binary on PATH (or g:vibe_binary)
+" kage.vim — AI coding assistant for Vim/Neovim
+" Requires: Vim 8.2+ or Neovim, kage binary on PATH (or g:kage_binary)
 
-if exists('g:loaded_vibe') | finish | endif
-let g:loaded_vibe = 1
+if exists('g:loaded_kage') | finish | endif
+let g:loaded_kage = 1
 
 " ─── Configuration ────────────────────────────────────────────────────────────
 
-let g:vibe_binary       = get(g:, 'vibe_binary',   'vibe')
-let g:vibe_provider     = get(g:, 'vibe_provider',  '')
-let g:vibe_model        = get(g:, 'vibe_model',     '')
-let g:vibe_split        = get(g:, 'vibe_split',     'vertical')
-let g:vibe_auto_approve = get(g:, 'vibe_auto_approve', [])
+let g:kage_binary       = get(g:, 'kage_binary',   'kage')
+let g:kage_provider     = get(g:, 'kage_provider',  '')
+let g:kage_model        = get(g:, 'kage_model',     '')
+let g:kage_split        = get(g:, 'kage_split',     'vertical')
+let g:kage_auto_approve = get(g:, 'kage_auto_approve', [])
 
 " ─── Script state ─────────────────────────────────────────────────────────────
 
@@ -77,19 +77,19 @@ function! s:EnsureStarted() abort
 		\ }
 
 	if s:IsNeovim()
-		let s:chan = s:JobStart([g:vibe_binary], l:opts)
+		let s:chan = s:JobStart([g:kage_binary], l:opts)
 		let s:job  = s:chan
 	else
-		let s:job  = s:JobStart([g:vibe_binary], l:opts)
+		let s:job  = s:JobStart([g:kage_binary], l:opts)
 		let s:chan  = job_getchannel(s:job)
 	endif
 
 	call s:Send({'type': 'hello', 'version': '0.1.0',
 		\ 'capabilities': ['chat', 'inline', 'diff']})
 
-	if g:vibe_provider !=# ''
-		let l:cfg = {'type': 'config', 'provider': g:vibe_provider}
-		if g:vibe_model !=# '' | let l:cfg.model = g:vibe_model | endif
+	if g:kage_provider !=# ''
+		let l:cfg = {'type': 'config', 'provider': g:kage_provider}
+		if g:kage_model !=# '' | let l:cfg.model = g:kage_model | endif
 		call s:Send(l:cfg)
 	endif
 endfunction
@@ -98,30 +98,30 @@ function! s:Send(dict) abort
 	call s:JobSend(json_encode(a:dict))
 endfunction
 
-" Block :q on the main editing window while vibe panel is open.
+" Block :q on the main editing window while kage panel is open.
 function! s:GuardMainQuit() abort
-	" Not our business if vibe panel is not open
+	" Not our business if kage panel is not open
 	if win_id2win(s:hist_win) == 0 && win_id2win(s:input_win) == 0
 		return
 	endif
-	" Not our business if the closing window IS a vibe pane
+	" Not our business if the closing window IS a kage pane
 	let l:cur = win_getid()
 	if l:cur == s:hist_win || l:cur == s:input_win
 		return
 	endif
-	" Main editing window trying to quit while vibe is open — abort quietly
+	" Main editing window trying to quit while kage is open — abort quietly
 	echohl WarningMsg
-	echom 'vibe: close the vibe panel first (q in the vibe panel)'
+	echom 'kage: close the kage panel first (q in the kage panel)'
 	echohl None
 	" feedkeys <C-c> into the typeahead to cancel the :q without an error
 	call feedkeys("\<C-c>", 'n')
 endfunction
 
-augroup vibe_lifecycle
+augroup kage_lifecycle
 	autocmd!
 	autocmd VimLeavePre * call s:Shutdown()
 	" When any window is about to close, check if it's the main editor
-	" while the vibe panel is still open — if so, block it.
+	" while the kage panel is still open — if so, block it.
 	autocmd QuitPre * call s:GuardMainQuit()
 augroup END
 
@@ -155,7 +155,7 @@ function! s:OnExit(job_or_id, code, ...) abort
 	let s:ready = 0
 	if a:code != 0
 		echohl WarningMsg
-		echom 'vibe: binary exited with code ' . a:code
+		echom 'kage: binary exited with code ' . a:code
 		echohl None
 	endif
 endfunction
@@ -209,8 +209,8 @@ function! s:ActiveSession() abort
 endfunction
 
 function! s:ModelLabel() abort
-	let l:prov  = g:vibe_provider !=# '' ? g:vibe_provider : 'ollama'
-	let l:model = g:vibe_model    !=# '' ? g:vibe_model    : 'llama3.2'
+	let l:prov  = g:kage_provider !=# '' ? g:kage_provider : 'ollama'
+	let l:model = g:kage_model    !=# '' ? g:kage_model    : 'llama3.2'
 	return l:prov . '/' . l:model
 endfunction
 
@@ -221,7 +221,7 @@ function! s:SetupHistBuf() abort
 	let s:hist_win = win_getid()
 
 	setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
-	setlocal filetype=vibe
+	setlocal filetype=kage
 	setlocal wrap linebreak
 	setlocal nonumber norelativenumber
 	setlocal signcolumn=no
@@ -230,23 +230,23 @@ function! s:SetupHistBuf() abort
 	setlocal nowinfixheight
 
 	" Statusline — reuse colorscheme's StatusLine group
-	let &l:statusline = ' vibe  ' . s:ModelLabel() . '%='
+	let &l:statusline = ' kage  ' . s:ModelLabel() . '%='
 
 	" Syntax — link to standard groups so any colorscheme works
-	syntax match VibeYou       /^you:.*/
-	syntax match VibeModel     /^[a-z][a-z0-9._\/-]*:$/
-	syntax match VibeThinking  /^\[thinking\].*/
-	syntax match VibeError     /^\[error\].*/
-	syntax match VibeFence     /^```\w*$/
-	syntax match VibeSeparator /^─\+$/
+	syntax match KageYou       /^you:.*/
+	syntax match KageModel     /^[a-z][a-z0-9._\/-]*:$/
+	syntax match KageThinking  /^\[thinking\].*/
+	syntax match KageError     /^\[error\].*/
+	syntax match KageFence     /^```\w*$/
+	syntax match KageSeparator /^─\+$/
 
 	" Link to colorscheme groups — no hardcoded colors
-	highlight default link VibeYou      Question
-	highlight default link VibeModel    Identifier
-	highlight default link VibeThinking Comment
-	highlight default link VibeError    ErrorMsg
-	highlight default link VibeFence    NonText
-	highlight default link VibeSeparator NonText
+	highlight default link KageYou      Question
+	highlight default link KageModel    Identifier
+	highlight default link KageThinking Comment
+	highlight default link KageError    ErrorMsg
+	highlight default link KageFence    NonText
+	highlight default link KageSeparator NonText
 
 	" Block every mutation key in normal and visual mode
 	for l:k in ['d','dd','D','c','cc','C','x','X','r','R','s','S',
@@ -257,11 +257,11 @@ function! s:SetupHistBuf() abort
 		execute 'vnoremap <buffer> ' . l:k . ' <NOP>'
 	endfor
 
-	nnoremap <buffer> q     :call <SID>VibeClose()<CR>
+	nnoremap <buffer> q     :call <SID>KageClose()<CR>
 	nnoremap <buffer> <C-c> :call <SID>CancelStream()<CR>
 	nnoremap <buffer> <Tab> :call <SID>InputFocus()<CR>
 
-	" Block all window splitting and moving — vibe manages its own layout
+	" Block all window splitting and moving — kage manages its own layout
 	nnoremap <buffer> <C-w>v     <NOP>
 	nnoremap <buffer> <C-w>s     <NOP>
 	nnoremap <buffer> <C-w>n     <NOP>
@@ -269,15 +269,15 @@ function! s:SetupHistBuf() abort
 	nnoremap <buffer> <C-w><C-s> <NOP>
 	nnoremap <buffer> <C-w><C-n> <NOP>
 
-	augroup vibe_hist_close
+	augroup kage_hist_close
 		autocmd! * <buffer>
 		" Closing history pane closes both
-		autocmd QuitPre <buffer> call s:VibeClose()
+		autocmd QuitPre <buffer> call s:KageClose()
 	augroup END
 
 	" Write header
 	call s:HistUnlock()
-	call setline(1, 'vibe')
+	call setline(1, 'kage')
 	call append(1, [repeat('─', 40), ''])
 	call s:HistLock()
 endfunction
@@ -327,7 +327,7 @@ function! s:SetupInputBuf() abort
 	let s:input_win = win_getid()
 
 	setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
-	setlocal filetype=vibeinput
+	setlocal filetype=kageinput
 	setlocal nonumber norelativenumber
 	setlocal signcolumn=no
 	setlocal nowrap
@@ -342,7 +342,7 @@ function! s:SetupInputBuf() abort
 	" Normal mode: Enter sends
 	nnoremap <buffer> <CR>   :call <SID>SendInput()<CR>
 	nnoremap <buffer> <C-c>  :call <SID>CancelStream()<CR>
-	nnoremap <buffer> q      :call <SID>VibeClose()<CR>
+	nnoremap <buffer> q      :call <SID>KageClose()<CR>
 	nnoremap <buffer> <Tab>  :call <SID>HistFocus()<CR>
 
 	" Insert mode: Enter is just a newline (default), Ctrl-s sends
@@ -359,10 +359,10 @@ function! s:SetupInputBuf() abort
 	inoremap <buffer> <C-w>v     <NOP>
 	inoremap <buffer> <C-w>s     <NOP>
 
-	augroup vibe_input_close
+	augroup kage_input_close
 		autocmd! * <buffer>
 		" Closing input pane closes both
-		autocmd QuitPre <buffer> call s:VibeClose()
+		autocmd QuitPre <buffer> call s:KageClose()
 	augroup END
 
 	call setline(1, '')
@@ -395,7 +395,7 @@ function! s:SendInput() abort
 	endif
 
 	if s:streaming
-		echom 'vibe: streaming — <C-c> to cancel'
+		echom 'kage: streaming — <C-c> to cancel'
 		call s:InputFocus()
 		return
 	endif
@@ -433,9 +433,9 @@ function! s:OpenPanel() abort
 	endif
 
 	" Outer split
-	if g:vibe_split ==# 'horizontal'
+	if g:kage_split ==# 'horizontal'
 		split
-	elseif g:vibe_split ==# 'tab'
+	elseif g:kage_split ==# 'tab'
 		tabedit
 	else
 		vsplit
@@ -452,7 +452,7 @@ function! s:OpenPanel() abort
 	call s:SetupInputBuf()
 endfunction
 
-function! s:VibeClose() abort
+function! s:KageClose() abort
 	if win_id2win(s:input_win) > 0
 		call win_execute(s:input_win, 'hide')
 	endif
@@ -498,17 +498,17 @@ endfunction
 
 " ─── Commands ─────────────────────────────────────────────────────────────────
 
-command! -nargs=? Vibe              call s:VibeOpen(<q-args>)
-command! -nargs=0 VibeChat          call s:VibeChatToggle()
-command! -range -nargs=? VibeEdit   call s:VibeEdit(<line1>, <line2>, <q-args>)
-command! -nargs=? VibeInline        call s:VibeEdit(line('.'), line('.'), <q-args>)
-command! -nargs=0 VibeCancel        call s:CancelStream()
-command! -nargs=1 VibeProvider      call s:SetProvider(<q-args>)
-command! -nargs=1 VibeAddFile       call s:AddFile(<q-args>)
-command! -nargs=0 VibeStatus        call s:Status()
-command! -nargs=0 VibeDebug         call s:Debug()
+command! -nargs=? Kage              call s:KageOpen(<q-args>)
+command! -nargs=0 KageChat          call s:KageChatToggle()
+command! -range -nargs=? KageEdit   call s:KageEdit(<line1>, <line2>, <q-args>)
+command! -nargs=? KageInline        call s:KageEdit(line('.'), line('.'), <q-args>)
+command! -nargs=0 KageCancel        call s:CancelStream()
+command! -nargs=1 KageProvider      call s:SetProvider(<q-args>)
+command! -nargs=1 KageAddFile       call s:AddFile(<q-args>)
+command! -nargs=0 KageStatus        call s:Status()
+command! -nargs=0 KageDebug         call s:Debug()
 
-function! s:VibeOpen(prompt) abort
+function! s:KageOpen(prompt) abort
 	let s:edit_buf = bufnr('%')
 	call s:EnsureStarted()
 	call s:OpenPanel()
@@ -518,15 +518,15 @@ function! s:VibeOpen(prompt) abort
 	endif
 endfunction
 
-function! s:VibeChatToggle() abort
+function! s:KageChatToggle() abort
 	if win_id2win(s:hist_win) > 0
-		call s:VibeClose()
+		call s:KageClose()
 	else
-		call s:VibeOpen('')
+		call s:KageOpen('')
 	endif
 endfunction
 
-function! s:VibeEdit(line1, line2, prompt) abort
+function! s:KageEdit(line1, line2, prompt) abort
 	let s:edit_buf = bufnr('%')
 	let l:path = expand('%:p')
 	call s:EnsureStarted()
@@ -551,15 +551,15 @@ endfunction
 function! s:SetProvider(name) abort
 	call s:EnsureStarted()
 	call s:Send({'type': 'config', 'provider': a:name})
-	let g:vibe_provider = a:name
-	let &l:statusline = ' vibe  ' . s:ModelLabel() . '%='
-	echo 'vibe: switched to ' . a:name
+	let g:kage_provider = a:name
+	let &l:statusline = ' kage  ' . s:ModelLabel() . '%='
+	echo 'kage: switched to ' . a:name
 endfunction
 
 function! s:AddFile(path) abort
 	let l:full = fnamemodify(a:path, ':p')
 	if !filereadable(l:full)
-		echohl ErrorMsg | echom 'vibe: cannot read ' . l:full | echohl None
+		echohl ErrorMsg | echom 'kage: cannot read ' . l:full | echohl None
 		return
 	endif
 	call add(s:pinned, {
@@ -568,13 +568,13 @@ function! s:AddFile(path) abort
 		\ 'content':  join(readfile(l:full), "\n"),
 		\ 'language': fnamemodify(l:full, ':e'),
 		\ })
-	echo 'vibe: pinned ' . l:full
+	echo 'kage: pinned ' . l:full
 endfunction
 
 function! s:Status() abort
-	echo printf('vibe  provider=%s  model=%s  session=%s  streaming=%d  pinned=%d',
-		\ (g:vibe_provider !=# '' ? g:vibe_provider : '(default)'),
-		\ (g:vibe_model    !=# '' ? g:vibe_model    : '(default)'),
+	echo printf('kage  provider=%s  model=%s  session=%s  streaming=%d  pinned=%d',
+		\ (g:kage_provider !=# '' ? g:kage_provider : '(default)'),
+		\ (g:kage_model    !=# '' ? g:kage_model    : '(default)'),
 		\ s:session, s:streaming, len(s:pinned))
 endfunction
 

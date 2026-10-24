@@ -1,11 +1,11 @@
-# vibe.vim
+# kage.vim
 ## Overview
 AI coding assistant for Vim and Neovim. Chat with your model about code and
 perform inline edits — works in classic Vim 8.2 and Neovim, with local or
 hosted models.
 
 <p align="center">
-	<img src="./assets/vibe.gif" alt="Using Ollama"/>
+	<img src="./assets/kage.gif" alt="Using Ollama"/>
 </p>
 
 - **Chat** Chat works end-to-end with Ollama, Anthropic, OpenAI, and any OpenAI-compatible endpoint.
@@ -28,10 +28,10 @@ diff accept/reject UI is in progress.
 ### 1. Build the binary
 
 ```sh
-git clone https://github.com/zblauser/vibe
-cd vibe
-go build -o vibe ./cmd/vibe
-mv vibe ~/.local/bin/   # or anywhere on your PATH
+git clone https://github.com/vim-nvim-plugins/kage
+cd kage
+go build -o kage ./cmd/kage
+mv kage ~/.local/bin/   # or anywhere on your PATH
 ```
 
 ### 2. Install the plugin
@@ -39,31 +39,31 @@ mv vibe ~/.local/bin/   # or anywhere on your PATH
 With [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```vim
-Plug 'zblauser/vibe', {'rtp': 'plugin'}
+Plug 'vim-nvim-plugins/kage'
 ```
 
-Or manually — copy `plugin/vibe.vim` into `~/.vim/plugin/` (Vim) or
+Or manually — copy `plugin/kage.vim` into `~/.vim/plugin/` (Vim) or
 `~/.config/nvim/plugin/` (Neovim).
 
 ### 3. Configure a provider (optional)
 
-Without a config file, vibe defaults to Ollama at `localhost:11434`. To use
-other providers, create `~/.config/vibe/config.toml`. See
+Without a config file, kage defaults to Ollama at `localhost:11434`. To use
+other providers, create `~/.config/kage/config.toml`. See
 [Provider setup](#provider-setup) below.
 
 ## Usage
 
 | Command | Description |
 |---|---|
-| `:Vibe [prompt]` | Open chat panel, optionally send an initial prompt |
-| `:VibeChat` | Toggle the chat panel |
-| `:'<,'>VibeEdit [prompt]` | Send a visual selection for inline edit |
-| `:VibeInline [prompt]` | Send the current line for inline edit |
-| `:VibeCancel` | Cancel the current stream |
-| `:VibeProvider <name>` | Switch provider for this session |
-| `:VibeAddFile <path>` | Pin a file into every subsequent request |
-| `:VibeStatus` | Show current provider, model, session, pinned files |
-| `:VibeDebug` | Show internal state |
+| `:Kage [prompt]` | Open chat panel, optionally send an initial prompt |
+| `:KageChat` | Toggle the chat panel |
+| `:'<,'>KageEdit [prompt]` | Send a visual selection for inline edit |
+| `:KageInline [prompt]` | Send the current line for inline edit |
+| `:KageCancel` | Cancel the current stream |
+| `:KageProvider <name>` | Switch provider for this session |
+| `:KageAddFile <path>` | Pin a file into every subsequent request |
+| `:KageStatus` | Show current provider, model, session, pinned files |
+| `:KageDebug` | Show internal state |
 
 ### Chat panel keys
 
@@ -90,7 +90,7 @@ The panel is two panes: a scrollable history (top) and an input buffer (bottom).
 ## Smoke test
 
 ```sh
-vibe test-provider ollama
+kage test-provider ollama
 # → should print the model's response and token usage
 ```
 
@@ -105,7 +105,7 @@ ollama pull llama3.2
 ```
 
 ```toml
-# ~/.config/vibe/config.toml  (optional — these are the defaults)
+# ~/.config/kage/config.toml  (optional — these are the defaults)
 default_provider = "ollama"
 
 [providers.ollama]
@@ -118,7 +118,7 @@ model    = "llama3.2"
 Set the `ANTHROPIC_API_KEY` environment variable, then:
 
 ```sh
-:VibeProvider anthropic
+:KageProvider anthropic
 ```
 
 Or configure explicitly:
@@ -190,7 +190,20 @@ The subprocess inherits the parent environment; `env` keys override or add to it
 
 ## Change Log
 
-### v0.2.0 (Latest)<br>
+### v0.3.0 (Latest)<br>
+Renamed from vibe.vim to kage.vim
+- Repo: github.com/vim-nvim-plugins/kage (old vibe URLs redirect)
+- Commands `:Vibe*` → `:Kage*`, options `g:vibe_*` → `g:kage_*`, `<Plug>Vibe*` → `<Plug>Kage*`, `:help kage`
+- Binary `kage`, config `~/.config/kage/config.toml` (move `~/.config/vibe/` there)
+- `kage --version` now reports the release version
+- Fixed: the repo was missing `cmd/kage/main.go` (an over-broad `.gitignore`), so step 1 of Install could not build
+- Fixed: the vim-plug line no longer sets `'rtp': 'plugin'`, which kept the plugin and `:help kage` from loading
+
+### Previous Versions
+<details>
+<summary>Previous Changes</summary>
+
+***v0.2.0***<br>
 Provider update
 
 Features
@@ -201,10 +214,6 @@ Features
 - Session history is kept — the model sees the full conversation
 - `:VibeProvider` switches providers mid-session
 - **Ollama**, **Anthropic**, **OpenAI**, and **ACP subprocess** providers all work
-
-### Previous Versions
-<details>
-<summary>Previous Changes</summary>
 
 ***v0.1.0***<br>
 - Initial commit
@@ -228,13 +237,13 @@ Please ensure your code follows the existing style.
 
 #### Project layout
 ```
-cmd/vibe/           binary entry point + protocol loop
+cmd/kage/           binary entry point + protocol loop
 internal/protocol/  NDJSON message types (binary ↔ plugin)
 internal/provider/  provider interface + Ollama, Anthropic, OpenAI, ACP
 internal/session/   conversation state + streaming
 internal/config/    config.toml loader
-plugin/vibe.vim     the entire Vim plugin (one file)
-doc/vibe.txt        :help vibe
+plugin/kage.vim     the entire Vim plugin (one file)
+doc/kage.txt        :help kage
 ```
 
 ## Thank you for your attention.

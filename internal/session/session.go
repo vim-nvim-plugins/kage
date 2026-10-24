@@ -7,15 +7,15 @@ import (
 	"os"
 	"sync"
 
-	"github.com/zblauser/vibe/internal/protocol"
-	"github.com/zblauser/vibe/internal/provider"
+	"github.com/vim-nvim-plugins/kage/internal/protocol"
+	"github.com/vim-nvim-plugins/kage/internal/provider"
 )
 
 // Session holds the conversation history for one chat thread.
 type Session struct {
 	ID       string
 	messages []provider.Message
-	pinned   []protocol.ContextBlock // files added via VibeAddFile
+	pinned   []protocol.ContextBlock // files added via KageAddFile
 
 	mu     sync.Mutex
 	cancel context.CancelFunc

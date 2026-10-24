@@ -32,11 +32,11 @@ type ChatMsg struct {
 }
 
 type InlineMsg struct {
-	Type      string       `json:"type"` // "inline"
-	Session   string       `json:"session"`
-	Prompt    string       `json:"prompt"`
-	File      string       `json:"file"`
-	Selection ContextBlock `json:"selection"`
+	Type      string         `json:"type"` // "inline"
+	Session   string         `json:"session"`
+	Prompt    string         `json:"prompt"`
+	File      string         `json:"file"`
+	Selection ContextBlock   `json:"selection"`
 	Context   []ContextBlock `json:"context,omitempty"`
 }
 

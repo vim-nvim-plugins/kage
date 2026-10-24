@@ -128,8 +128,8 @@ func (a *Anthropic) readSSE(ctx context.Context, resp *http.Response, out chan<-
 
 		// Use a single envelope struct covering all event shapes we care about.
 		var ev struct {
-			Type    string `json:"type"`
-			Delta   struct {
+			Type  string `json:"type"`
+			Delta struct {
 				Type     string `json:"type"`
 				Text     string `json:"text"`
 				Thinking string `json:"thinking"`

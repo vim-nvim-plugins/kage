@@ -6,7 +6,7 @@ import (
 )
 
 func TestParseBasic(t *testing.T) {
-	f, err := os.CreateTemp("", "vibe-config-*.toml")
+	f, err := os.CreateTemp("", "kage-config-*.toml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestDefaults(t *testing.T) {
 }
 
 func TestComments(t *testing.T) {
-	f, err := os.CreateTemp("", "vibe-config-*.toml")
+	f, err := os.CreateTemp("", "kage-config-*.toml")
 	if err != nil {
 		t.Fatal(err)
 	}
